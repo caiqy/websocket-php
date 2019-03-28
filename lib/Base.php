@@ -126,13 +126,21 @@ class Base {
     $this->write($frame);
   }
 
-  public function receive() {
+  public function receive($timeout = 10) {
+    $beginTime = time();
+    
     if (!$this->is_connected) $this->connect(); /// @todo This is a client function, fixme!
 
     $this->huge_payload = '';
 
     $response = null;
-    while (is_null($response)) $response = $this->receive_fragment();
+    
+    while (is_null($response)) {
+      $response = $this->receive_fragment();
+        
+      if(time() - $beginTime >= $timeout)
+        break;
+    }
 
     return $response;
   }
